@@ -4,7 +4,6 @@
 
 int main() {
 	std::cout << "pc won't enable screensaver while this window is open" << std::endl;
-	while (true) {
-		SetThreadExecutionState(ES_DISPLAY_REQUIRED);
-	}
+	SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
+	std::cin.get();
 }
