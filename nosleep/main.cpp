@@ -1,11 +1,12 @@
 #include <windows.h>
+#include <windowsx.h>
 #include <shellapi.h>
-#include <iostream>
+#include <string>
 #include <commctrl.h>
 #include <strsafe.h>
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-#define CUSTOM (WM_APP + 100)
+#define ICON (WM_APP + 100)
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -46,7 +47,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	nid.hWnd = hwnd;
 	nid.cbSize = sizeof(nid);
 	nid.uFlags = NIF_ICON | NIF_TIP | NIF_GUID | NIF_MESSAGE;
-	nid.uCallbackMessage = CUSTOM;
+	nid.uVersion = NOTIFYICON_VERSION_4; //necessary to get x, y data from icon click
+	nid.uCallbackMessage = ICON;
 	nid.uID = 0;
 
 	// This text will be shown as the icon's tooltip.
@@ -68,9 +70,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
-	case CUSTOM:
-		ShowWindow(hwnd, 1);
-		return 0;
+		case ICON:
+		{
+			WORD message_type = LOWORD(lParam);
+			if (message_type == WM_RBUTTONDOWN) {
+				int x = GET_X_LPARAM(wParam);
+				int y = GET_Y_LPARAM(wParam);
+				ShowWindow(hwnd, 1);
+			}
+			return 0;
+		}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
