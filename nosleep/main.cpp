@@ -56,6 +56,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	// Load the icon for high DPI.
 	LoadIconMetric(NULL, (PCWSTR)MAKEINTRESOURCE(IDI_ERROR), LIM_SMALL, &(nid.hIcon));
 	Shell_NotifyIcon(NIM_ADD, &nid);
+	Shell_NotifyIcon(NIM_SETVERSION, &nid);
 	MSG msg = { };
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -73,10 +74,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case ICON:
 		{
 			WORD message_type = LOWORD(lParam);
-			if (message_type == WM_RBUTTONDOWN) {
+			if (message_type == WM_RBUTTONDOWN ) {
 				int x = GET_X_LPARAM(wParam);
 				int y = GET_Y_LPARAM(wParam);
-				ShowWindow(hwnd, 1);
+				SetWindowPos(hwnd, HWND_TOP, x + 100, y + 100, 100, 100, SWP_SHOWWINDOW);
 			}
 			return 0;
 		}
