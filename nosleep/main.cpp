@@ -10,6 +10,9 @@
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+static const GUID guid = { 0xe5817653, 0x5a53, 0x4068, { 0x94, 0xa7, 0x73, 0x59, 0xf2, 0x6, 0xa, 0x41 } };
+
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow){
 	SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
 	LPCSTR name = "name";
@@ -47,9 +50,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	nid.hWnd = hwnd;
 	nid.cbSize = sizeof(nid);
 	nid.uFlags = NIF_ICON | NIF_TIP | NIF_GUID | NIF_MESSAGE;
-	nid.uVersion = NOTIFYICON_VERSION_4; //necessary to get x, y data from icon click
+	nid.uVersion = NOTIFYICON_VERSION_4;
 	nid.uCallbackMessage = ICON;
-	nid.uID = 0;
+	nid.guidItem = guid;
+
 
 	// This text will be shown as the icon's tooltip.
 	StringCchCopy(nid.szTip, ARRAYSIZE(nid.szTip), "Test application");
@@ -74,14 +78,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case ICON:
 		{
 			WORD message_type = LOWORD(lParam);
+			RECT position = {};
+			//get bounding rectangle of clicked icon
+			NOTIFYICONIDENTIFIER icon = {};
+			icon.cbSize = sizeof(NOTIFYICONIDENTIFIER);
+			icon.guidItem = guid;
+			HRESULT result = Shell_NotifyIconGetRect(&icon, &position);
+
 			if (message_type == WM_RBUTTONDOWN ) {
-				int x = GET_X_LPARAM(wParam);
-				int y = GET_Y_LPARAM(wParam);
-				SetWindowPos(hwnd, HWND_TOP, x + 100, y + 100, 100, 100, SWP_SHOWWINDOW);
+				SetWindowPos(hwnd, HWND_TOP, position.left, position.top - 80, 100, 100, SWP_SHOWWINDOW);
 			}
 			return 0;
 		}
 	case WM_DESTROY:
+		NOTIFYICONDATA nid;
+		nid.cbSize = sizeof(NOTIFYICONDATA);
+		nid.uVersion = NOTIFYICON_VERSION_4;
+		nid.uFlags = NIF_GUID;
+		nid.guidItem = guid;
+		Shell_NotifyIcon(NIM_DELETE, &nid);
 		PostQuitMessage(0);
 		return 0;
 
