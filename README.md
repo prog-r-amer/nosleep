@@ -1,7 +1,7 @@
-coffee icon by linearicon https://linearicons.com/
+coffee icon by linearicon https://linearicons.com/  
 creator is https://perxis.com/
 
-code mit licensed
+code mit licensed  
 
 Copyright 2019 Tobias Dünser
 
