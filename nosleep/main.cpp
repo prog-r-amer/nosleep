@@ -4,6 +4,7 @@
 #include <string>
 #include <commctrl.h>
 #include <strsafe.h>
+#include "resource.h"
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #define ICON (WM_APP + 100)
@@ -21,7 +22,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = name;
-
 	RegisterClass(&wc);
 
 	// Create the window.
@@ -58,7 +58,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	// This text will be shown as the icon's tooltip.
 	StringCchCopy(nid.szTip, ARRAYSIZE(nid.szTip), "Test application");
 	// Load the icon for high DPI.
-	LoadIconMetric(NULL, (PCWSTR)MAKEINTRESOURCE(IDI_ERROR), LIM_SMALL, &(nid.hIcon));
+	LoadIconMetric(hInstance, (PCWSTR)MAKEINTRESOURCE(MAINICON), LIM_SMALL, &(nid.hIcon));
 	Shell_NotifyIcon(NIM_ADD, &nid);
 	Shell_NotifyIcon(NIM_SETVERSION, &nid);
 	MSG msg = { };
