@@ -16,21 +16,23 @@ static const GUID guid = { 0xe5817653, 0x5a53, 0x4068, { 0x94, 0xa7, 0x73, 0x59,
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow){
 	SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
-	LPCSTR name = "name";
+	LPCSTR name = "windowclass";
 	WNDCLASS wc = { };
 
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = name;
+	LoadIconMetric(hInstance, (PCWSTR)MAKEINTRESOURCE(MAINICON), LIM_LARGE, &(wc.hIcon));
+
 	RegisterClass(&wc);
 
 	// Create the window.
 
-	HWND hwnd = CreateWindowEx(
+	HWND main = CreateWindowEx(
 		0,                              // Optional window styles.
 		name,                     // Window class
-		"Learn to Program Windows",    // Window text
-		WS_OVERLAPPED,            // Window style
+		"about",    // Window text
+		WS_OVERLAPPEDWINDOW,            // Window style
 
 		// Size and position
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -41,10 +43,57 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		NULL        // Additional application data
 	);
 
-	if (hwnd == NULL)
+
+
+	if (main == NULL)
 	{
 		return 0;
 	}
+
+	HWND hwnd = CreateWindowEx(
+		0,                              // Optional window styles.
+		name,                     // Window class
+		"",    // Window text
+		WS_POPUP,            // Window style
+
+		// Size and position
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+
+		main,       // Parent window    
+		NULL,       // Menu
+		hInstance,  // Instance handle
+		NULL        // Additional application data
+	);
+
+	if (hwnd == NULL) {
+		return 0;
+	}
+
+	HWND button1 = CreateWindow(
+		"BUTTON",  // Predefined class; Unicode assumed 
+		"about",      // Button text 
+		 WS_VISIBLE | WS_CHILD | BS_NOTIFY,  // Styles 
+		0,         // x position 
+		0,         // y position 
+		100,        // Button width
+		30,        // Button height
+		hwnd,     // Parent window
+		(HMENU)BUTTON_ABOUT,
+		(HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE),
+		NULL);      // Pointer not needed.
+
+	HWND button2 = CreateWindow(
+		"BUTTON",  // Predefined class; Unicode assumed 
+		"exit",      // Button text 
+		WS_VISIBLE | WS_CHILD | BS_NOTIFY,  // Styles 
+		0,         // x position 
+		30,         // y position 
+		100,        // Button width
+		30,        // Button height
+		hwnd,     // Parent window
+		(HMENU)BUTTON_EXIT,
+		(HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE),
+		NULL);      // Pointer not needed.
 
 	NOTIFYICONDATA nid = {};
 	nid.hWnd = hwnd;
@@ -59,6 +108,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	StringCchCopy(nid.szTip, ARRAYSIZE(nid.szTip), "Test application");
 	// Load the icon for high DPI.
 	LoadIconMetric(hInstance, (PCWSTR)MAKEINTRESOURCE(LIGHT_ICON), LIM_SMALL, &(nid.hIcon));
+	Shell_NotifyIcon(NIM_DELETE, &nid);
 	Shell_NotifyIcon(NIM_ADD, &nid);
 	Shell_NotifyIcon(NIM_SETVERSION, &nid);
 	MSG msg = { };
@@ -86,28 +136,48 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			HRESULT result = Shell_NotifyIconGetRect(&icon, &position);
 
 			if (message_type == WM_RBUTTONDOWN ) {
-				SetWindowPos(hwnd, HWND_TOP, position.left, position.top - 80, 100, 100, SWP_SHOWWINDOW);
+				SetWindowPos(hwnd, HWND_TOPMOST, position.left, position.top - 60, 100, 60, SWP_SHOWWINDOW);
 			}
 			return 0;
 		}
-	case WM_DESTROY:
-		NOTIFYICONDATA nid;
-		nid.cbSize = sizeof(NOTIFYICONDATA);
-		nid.uVersion = NOTIFYICON_VERSION_4;
-		nid.uFlags = NIF_GUID;
-		nid.guidItem = guid;
-		Shell_NotifyIcon(NIM_DELETE, &nid);
-		PostQuitMessage(0);
-		return 0;
+		case WM_COMMAND:
+		{
+			WORD id = LOWORD(wParam);
+			WORD type = HIWORD(wParam);
 
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hwnd, &ps);
-		FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-		EndPaint(hwnd, &ps);
-	}
-	return 0;
+			if (id == BUTTON_ABOUT) {
+				HWND about = (HWND)GetWindowLongA(
+					hwnd,
+					GWL_HWNDPARENT
+				);
+				ShowWindow(about, SW_SHOW);
+
+			}
+
+			if (id == BUTTON_EXIT) {
+				SendMessage(hwnd, WM_DESTROY, NULL, NULL);
+			}
+			return 0;
+		}
+
+		case WM_DESTROY:
+		{
+			NOTIFYICONDATA nid;
+			nid.cbSize = sizeof(NOTIFYICONDATA);
+			nid.uVersion = NOTIFYICON_VERSION_4;
+			nid.uFlags = NIF_GUID;
+			nid.guidItem = guid;
+			Shell_NotifyIcon(NIM_DELETE, &nid);
+			PostQuitMessage(0);
+			return 0;
+		}
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hwnd, &ps);
+			EndPaint(hwnd, &ps);
+		}
+		return 0;
 
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
