@@ -62,7 +62,10 @@ LANGUAGE LANG_GERMAN, SUBLANG_GERMAN_AUSTRIAN
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-MAINICON ICON "icon.ico"
+MAINICON                ICON                    "icon_dark.ico"
+
+LIGHT_ICON               ICON                    "icon.ico"
+
 #endif    // Deutsch (Österreich) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -30,7 +30,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		0,                              // Optional window styles.
 		name,                     // Window class
 		"Learn to Program Windows",    // Window text
-		WS_OVERLAPPEDWINDOW,            // Window style
+		WS_OVERLAPPED,            // Window style
 
 		// Size and position
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -58,7 +58,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	// This text will be shown as the icon's tooltip.
 	StringCchCopy(nid.szTip, ARRAYSIZE(nid.szTip), "Test application");
 	// Load the icon for high DPI.
-	LoadIconMetric(hInstance, (PCWSTR)MAKEINTRESOURCE(MAINICON), LIM_SMALL, &(nid.hIcon));
+	LoadIconMetric(hInstance, (PCWSTR)MAKEINTRESOURCE(LIGHT_ICON), LIM_SMALL, &(nid.hIcon));
 	Shell_NotifyIcon(NIM_ADD, &nid);
 	Shell_NotifyIcon(NIM_SETVERSION, &nid);
 	MSG msg = { };
