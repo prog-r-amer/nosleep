@@ -14,6 +14,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static const GUID guid = { 0xe5817653, 0x5a53, 0x4068, { 0x94, 0xa7, 0x73, 0x59, 0xf2, 0x6, 0xa, 0x41 } };
 
 HWND parent_window;
+HWND menu;
 HWND hwnd_text;
 
 
@@ -53,7 +54,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		return 0;
 	}
 
-	HWND hwnd = CreateWindowEx(
+	HWND menu = CreateWindowEx(
 		0,                              // Optional window styles.
 		name,                     // Window class
 		"",    // Window text
@@ -68,7 +69,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		NULL        // Additional application data
 	);
 
-	if (hwnd == NULL) {
+	if (menu == NULL) {
 		return 0;
 	}
 
@@ -80,7 +81,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		0,         // y position 
 		100,        // Button width
 		30,        // Button height
-		hwnd,     // Parent window
+		menu,     // Parent window
 		(HMENU)BUTTON_ABOUT,
 		(HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE),
 		NULL);      // Pointer not needed.
@@ -93,9 +94,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		30,         // y position 
 		100,        // Button width
 		30,        // Button height
-		hwnd,     // Parent window
+		menu,     // Parent window
 		(HMENU)BUTTON_EXIT,
-		(HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE),
+		(HINSTANCE)GetWindowLong(menu, GWL_HINSTANCE),
 		NULL);      // Pointer not needed.
 
 	hwnd_text = CreateWindowEx(
@@ -106,7 +107,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		0, 0, 0, 0,   // set size in WM_SIZE message 
 		parent_window,         // parent window 
 		NULL,   // edit control ID 
-		(HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE),
+		(HINSTANCE)GetWindowLong(parent_window, GWL_HINSTANCE),
 		NULL);        // pointer not needed 
 
 	TCHAR text[] = "coffee icon by linearicon https://linearicons.com/ \r\n"
