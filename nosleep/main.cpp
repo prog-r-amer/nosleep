@@ -54,7 +54,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		return 0;
 	}
 
-	HWND menu = CreateWindowEx(
+	menu = CreateWindowEx(
 		0,                              // Optional window styles.
 		name,                     // Window class
 		"",    // Window text
@@ -140,7 +140,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	return 0;
 }
 
-bool tracking = false;
+bool outside = true;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -157,26 +157,30 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		HRESULT result = Shell_NotifyIconGetRect(&icon, &position);
 
 		if (message_type == WM_RBUTTONDOWN) {
-			SetWindowPos(hwnd, HWND_TOPMOST, position.left, position.top - 100, 100, 160, SWP_SHOWWINDOW);
+			SetWindowPos(hwnd, HWND_TOPMOST, position.left, position.top - 60, 100, 60, SWP_SHOWWINDOW);
+			SetCapture(menu);
+		}
+		return 0;
+	}
+	case WM_LBUTTONDOWN:
+	{
+		if (outside) {
+			ShowWindow(menu, SW_HIDE);
 		}
 		return 0;
 	}
 	case WM_MOUSEMOVE:
 	{
-		TRACKMOUSEEVENT track;
-		track.cbSize = sizeof(TRACKMOUSEEVENT);
-		track.dwFlags = TME_HOVER;
-		track.dwHoverTime = 100;
-		track.hwndTrack = hwnd;
-		if (!tracking) {
-			tracking = true;
-			TrackMouseEvent(&track);
+		int x = GET_X_LPARAM(lParam);
+		int y = GET_Y_LPARAM(lParam);
+		POINT point = { x = x, y = y };
+		HWND window = WindowFromPoint(point);
+		if (window == NULL) {
+			outside = true;
 		}
-		return 0;
-	}
-	case WM_MOUSEHOVER:
-	{
-		OutputDebugString("hover");
+		else {
+			outside = false;
+		}
 		return 0;
 	}
 	case WM_COMMAND:
