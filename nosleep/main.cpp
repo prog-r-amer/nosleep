@@ -83,7 +83,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		30,        // Button height
 		menu,     // Parent window
 		(HMENU)BUTTON_ABOUT,
-		(HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE),
+		(HINSTANCE)GetWindowLong(menu, GWL_HINSTANCE),
 		NULL);      // Pointer not needed.
 
 	HWND button2 = CreateWindow(
@@ -115,7 +115,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 
 	SendMessage(hwnd_text, WM_SETTEXT, 0, (LPARAM)text);
 	NOTIFYICONDATA nid = {};
-	nid.hWnd = hwnd;
+	nid.hWnd = menu;
 	nid.cbSize = sizeof(nid);
 	nid.uFlags = NIF_ICON | NIF_TIP | NIF_GUID | NIF_MESSAGE;
 	nid.uVersion = NOTIFYICON_VERSION_4;
