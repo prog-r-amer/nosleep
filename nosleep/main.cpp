@@ -141,6 +141,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 }
 
 bool outside = true;
+bool tracking = false;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -180,7 +181,24 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		else {
 			outside = false;
+			if (!tracking) {
+				TRACKMOUSEEVENT track;
+				track.dwFlags = TME_LEAVE;
+				track.dwHoverTime = HOVER_DEFAULT;
+				track.cbSize = sizeof(TRACKMOUSEEVENT);
+				track.hwndTrack = hwnd;
+				tracking = TrackMouseEvent(&track);
+			}
+			if (tracking) {
+				ReleaseCapture();
+			}
 		}
+		return 0;
+	}
+	case WM_MOUSELEAVE:
+	{
+		SetCapture(menu);
+		tracking = false;
 		return 0;
 	}
 	case WM_COMMAND:
