@@ -17,6 +17,8 @@ HWND parent_window;
 HWND menu;
 HWND hwnd_text;
 
+HMENU test;
+
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow) {
 	SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
@@ -73,32 +75,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		return 0;
 	}
 
-	HWND button1 = CreateWindow(
-		"BUTTON",  // Predefined class; Unicode assumed 
-		"about",      // Button text 
-		WS_VISIBLE | WS_CHILD | BS_NOTIFY,  // Styles 
-		0,         // x position 
-		0,         // y position 
-		100,        // Button width
-		30,        // Button height
-		menu,     // Parent window
-		(HMENU)BUTTON_ABOUT,
-		(HINSTANCE)GetWindowLong(menu, GWL_HINSTANCE),
-		NULL);      // Pointer not needed.
-
-	HWND button2 = CreateWindow(
-		"BUTTON",  // Predefined class; Unicode assumed 
-		"exit",      // Button text 
-		WS_VISIBLE | WS_CHILD | BS_NOTIFY,  // Styles 
-		0,         // x position 
-		30,         // y position 
-		100,        // Button width
-		30,        // Button height
-		menu,     // Parent window
-		(HMENU)BUTTON_EXIT,
-		(HINSTANCE)GetWindowLong(menu, GWL_HINSTANCE),
-		NULL);      // Pointer not needed.
-
 	hwnd_text = CreateWindowEx(
 		0, "EDIT",   // predefined class 
 		NULL,         // no window title 
@@ -130,6 +106,21 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	Shell_NotifyIcon(NIM_DELETE, &nid);
 	Shell_NotifyIcon(NIM_ADD, &nid);
 	Shell_NotifyIcon(NIM_SETVERSION, &nid);
+
+	test = CreatePopupMenu();
+	MENUITEMINFO info = {};
+	info.cbSize = sizeof(info);
+	info.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID;
+	info.fType = MFT_STRING;
+	info.dwTypeData = (LPSTR)"about";
+	info.wID = MENU_ABOUT;
+	info.cch = lstrlen(info.dwTypeData);
+	InsertMenuItem(test, 0, true, &info);
+	info.wID = MENU_EXIT;
+	info.dwTypeData = (LPSTR)"exit";
+	info.cch = lstrlen(info.dwTypeData);
+	InsertMenuItem(test, 1, true, &info);
+
 	MSG msg = { };
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -140,8 +131,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	return 0;
 }
 
-bool outside = true;
-bool tracking = false;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -156,49 +145,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		icon.cbSize = sizeof(NOTIFYICONIDENTIFIER);
 		icon.guidItem = guid;
 		HRESULT result = Shell_NotifyIconGetRect(&icon, &position);
-
+		SetForegroundWindow(menu);
 		if (message_type == WM_RBUTTONDOWN) {
-			SetWindowPos(hwnd, HWND_TOPMOST, position.left, position.top - 60, 100, 60, SWP_SHOWWINDOW);
-			SetCapture(menu);
+			bool result = TrackPopupMenuEx(test, TPM_LEFTALIGN, position.left, position.top, menu, NULL);
 		}
-		return 0;
-	}
-	case WM_LBUTTONDOWN:
-	{
-		if (outside) {
-			ShowWindow(menu, SW_HIDE);
-		}
-		return 0;
-	}
-	case WM_MOUSEMOVE:
-	{
-		int x = GET_X_LPARAM(lParam);
-		int y = GET_Y_LPARAM(lParam);
-		POINT point = { x = x, y = y };
-		HWND window = WindowFromPoint(point);
-		if (window == NULL) {
-			outside = true;
-		}
-		else {
-			outside = false;
-			if (!tracking) {
-				TRACKMOUSEEVENT track;
-				track.dwFlags = TME_LEAVE;
-				track.dwHoverTime = HOVER_DEFAULT;
-				track.cbSize = sizeof(TRACKMOUSEEVENT);
-				track.hwndTrack = hwnd;
-				tracking = TrackMouseEvent(&track);
-			}
-			if (tracking) {
-				ReleaseCapture();
-			}
-		}
-		return 0;
-	}
-	case WM_MOUSELEAVE:
-	{
-		SetCapture(menu);
-		tracking = false;
 		return 0;
 	}
 	case WM_COMMAND:
@@ -206,11 +156,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		WORD id = LOWORD(wParam);
 		WORD type = HIWORD(wParam);
 
-		if (id == BUTTON_ABOUT) {
+		if (id == MENU_ABOUT) {
 			ShowWindow(parent_window, SW_SHOW);
 		}
 
-		if (id == BUTTON_EXIT) {
+		if (id == MENU_EXIT) {
 			SendMessage(hwnd, WM_DESTROY, NULL, NULL);
 		}
 		return 0;

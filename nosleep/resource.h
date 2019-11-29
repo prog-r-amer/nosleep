@@ -5,8 +5,8 @@
 #define MAINICON                         101
 #define LIGHT_ICON                        102
 
-#define BUTTON_ABOUT 103
-#define BUTTON_EXIT 104
+#define MENU_ABOUT 103
+#define MENU_EXIT 104
 
 // Next default values for new objects
 // 
