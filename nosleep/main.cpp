@@ -15,8 +15,8 @@ static const GUID guid = { 0xe5817653, 0x5a53, 0x4068, { 0x94, 0xa7, 0x73, 0x59,
 
 HWND parent_window;
 HWND menu;
-HWND hwnd_text;
-
+HWND edit_window;
+HWND edit;
 HMENU test;
 
 
@@ -37,7 +37,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	parent_window = CreateWindowEx(
 		0,                              // Optional window styles.
 		name,                     // Window class
-		"about",    // Window text
+		"",    // Window text
 		WS_OVERLAPPEDWINDOW,            // Window style
 
 		// Size and position
@@ -52,6 +52,28 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 
 
 	if (parent_window == NULL)
+	{
+		return 0;
+	}
+
+	edit_window = CreateWindowEx(
+		0,                              // Optional window styles.
+		name,                     // Window class
+		"about",    // Window text
+		WS_OVERLAPPEDWINDOW,            // Window style
+
+		// Size and position
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+
+		parent_window,       // Parent window    
+		NULL,       // Menu
+		hInstance,  // Instance handle
+		NULL        // Additional application data
+	);
+
+
+
+	if (edit_window == NULL)
 	{
 		return 0;
 	}
@@ -75,21 +97,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		return 0;
 	}
 
-	hwnd_text = CreateWindowEx(
+	edit = CreateWindowEx(
 		0, "EDIT",   // predefined class 
 		NULL,         // no window title 
 		WS_CHILD | WS_VISIBLE |
 		ES_LEFT | ES_MULTILINE | ES_READONLY,
 		0, 0, 0, 0,   // set size in WM_SIZE message 
-		parent_window,         // parent window 
+		edit_window,         // parent window 
 		NULL,   // edit control ID 
-		(HINSTANCE)GetWindowLong(parent_window, GWL_HINSTANCE),
+		hInstance,
 		NULL);        // pointer not needed 
+
+	if (edit == NULL) {
+		return 0;
+	}
 
 	TCHAR text[] = "coffee icon by linearicon https://linearicons.com/ \r\n"
 		"creator is https://perxis.com/";
 
-	SendMessage(hwnd_text, WM_SETTEXT, 0, (LPARAM)text);
+	SendMessage(edit, WM_SETTEXT, 0, (LPARAM)text);
 	NOTIFYICONDATA nid = {};
 	nid.hWnd = menu;
 	nid.cbSize = sizeof(nid);
@@ -157,11 +183,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		WORD type = HIWORD(wParam);
 
 		if (id == MENU_ABOUT) {
-			ShowWindow(parent_window, SW_SHOW);
+			ShowWindow(edit_window, SW_SHOW);
 		}
 
 		if (id == MENU_EXIT) {
 			SendMessage(hwnd, WM_DESTROY, NULL, NULL);
+		}
+		return 0;
+	}
+
+	case WM_CLOSE:
+	{
+		if (hwnd == edit_window) {
+			ShowWindow(edit_window, SW_HIDE);
 		}
 		return 0;
 	}
@@ -179,7 +213,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_SIZE:
 		// Make the edit control the size of the window's client area. 
-		MoveWindow(hwnd_text,
+		MoveWindow(edit,
 			0, 0,                  // starting x- and y-coordinates 
 			LOWORD(lParam),        // width of client area 
 			HIWORD(lParam),        // height of client area 
