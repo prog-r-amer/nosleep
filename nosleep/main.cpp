@@ -183,7 +183,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		nid.uVersion = NOTIFYICON_VERSION_4;
 		nid.uID = 0;
 		nid.hWnd = parent_window;
-		nid.uFlags = NIF_GUID;
 		Shell_NotifyIcon(NIM_DELETE, &nid);
 		PostQuitMessage(0);
 		return 0;
