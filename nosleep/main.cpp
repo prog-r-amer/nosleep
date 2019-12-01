@@ -4,7 +4,6 @@
 #include <shellapi.h>
 #include <string>
 #include <commctrl.h>
-#include <strsafe.h>
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #define ICON (WM_APP + 100)
@@ -99,13 +98,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	nid.hWnd = parent_window;
 	nid.cbSize = sizeof(nid);
 	nid.uID = 0;
-	nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+	nid.uFlags = NIF_ICON | NIF_MESSAGE;
 	nid.uVersion = NOTIFYICON_VERSION_4;
 	nid.uCallbackMessage = ICON;
 
 
-	// This text will be shown as the icon's tooltip.
-	StringCchCopy(nid.szTip, ARRAYSIZE(nid.szTip), "Test application");
 	// Load the icon for high DPI.
 	LoadIconMetric(hInstance, (PCWSTR)MAKEINTRESOURCE(LIGHT_ICON), LIM_SMALL, &(nid.hIcon));
 	Shell_NotifyIcon(NIM_ADD, &nid);
