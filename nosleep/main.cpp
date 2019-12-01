@@ -15,10 +15,9 @@ static const GUID guid = { 0x82eb6b73, 0x5f44, 0x4617, { 0x95, 0x7f, 0x4b, 0xc3,
 
 
 HWND parent_window;
-HWND menu;
 HWND edit_window;
 HWND edit;
-HMENU test;
+HMENU menu;
 
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow) {
@@ -79,25 +78,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 		return 0;
 	}
 
-	menu = CreateWindowEx(
-		0,                              // Optional window styles.
-		name,                     // Window class
-		"",    // Window text
-		WS_POPUP,            // Window style
-
-		// Size and position
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
-		parent_window,       // Parent window    
-		NULL,       // Menu
-		hInstance,  // Instance handle
-		NULL        // Additional application data
-	);
-
-	if (menu == NULL) {
-		return 0;
-	}
-
 	edit = CreateWindowEx(
 		0, "EDIT",   // predefined class 
 		NULL,         // no window title 
@@ -118,7 +98,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 
 	SendMessage(edit, WM_SETTEXT, 0, (LPARAM)text);
 	NOTIFYICONDATA nid = {};
-	nid.hWnd = menu;
+	nid.hWnd = parent_window;
 	nid.cbSize = sizeof(nid);
 	nid.uFlags = NIF_ICON | NIF_TIP | NIF_GUID | NIF_MESSAGE;
 	nid.uVersion = NOTIFYICON_VERSION_4;
@@ -134,7 +114,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	Shell_NotifyIcon(NIM_ADD, &nid);
 	Shell_NotifyIcon(NIM_SETVERSION, &nid);
 
-	test = CreatePopupMenu();
+	menu = CreatePopupMenu();
 	MENUITEMINFO info = {};
 	info.cbSize = sizeof(info);
 	info.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID;
@@ -142,11 +122,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	info.dwTypeData = (LPSTR)"about";
 	info.wID = MENU_ABOUT;
 	info.cch = lstrlen(info.dwTypeData);
-	InsertMenuItem(test, 0, true, &info);
+	InsertMenuItem(menu, 0, true, &info);
 	info.wID = MENU_EXIT;
 	info.dwTypeData = (LPSTR)"exit";
 	info.cch = lstrlen(info.dwTypeData);
-	InsertMenuItem(test, 1, true, &info);
+	InsertMenuItem(menu, 1, true, &info);
 
 	MSG msg = { };
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -172,9 +152,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		icon.cbSize = sizeof(NOTIFYICONIDENTIFIER);
 		icon.guidItem = guid;
 		HRESULT result = Shell_NotifyIconGetRect(&icon, &position);
-		SetForegroundWindow(menu);
+		SetForegroundWindow(parent_window);
 		if (message_type == WM_RBUTTONDOWN) {
-			bool result = TrackPopupMenuEx(test, TPM_LEFTALIGN, position.left, position.top, menu, NULL);
+			bool result = TrackPopupMenuEx(menu, TPM_LEFTALIGN, position.left, position.top, parent_window, NULL);
 		}
 		return 0;
 	}
@@ -188,7 +168,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 
 		if (id == MENU_EXIT) {
-			SendMessage(hwnd, WM_DESTROY, NULL, NULL);
+			SendMessage(parent_window, WM_DESTROY, NULL, NULL);
 		}
 		return 0;
 	}
