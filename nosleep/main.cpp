@@ -11,8 +11,6 @@
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-static const GUID guid = { 0x82eb6b73, 0x5f44, 0x4617, { 0x95, 0x7f, 0x4b, 0xc3, 0xa7, 0x12, 0xe, 0x68 } };
-
 
 HWND parent_window;
 HWND edit_window;
@@ -100,10 +98,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	NOTIFYICONDATA nid = {};
 	nid.hWnd = parent_window;
 	nid.cbSize = sizeof(nid);
-	nid.uFlags = NIF_ICON | NIF_TIP | NIF_GUID | NIF_MESSAGE;
+	nid.uID = 0;
+	nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
 	nid.uVersion = NOTIFYICON_VERSION_4;
 	nid.uCallbackMessage = ICON;
-	nid.guidItem = guid;
 
 
 	// This text will be shown as the icon's tooltip.
@@ -149,8 +147,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		RECT position = {};
 		//get bounding rectangle of clicked icon
 		NOTIFYICONIDENTIFIER icon = {};
+		icon.hWnd = parent_window;
+		icon.uID = 0;
 		icon.cbSize = sizeof(NOTIFYICONIDENTIFIER);
-		icon.guidItem = guid;
 		HRESULT result = Shell_NotifyIconGetRect(&icon, &position);
 		SetForegroundWindow(parent_window);
 		if (message_type == WM_RBUTTONDOWN) {
@@ -186,8 +185,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		NOTIFYICONDATA nid;
 		nid.cbSize = sizeof(NOTIFYICONDATA);
 		nid.uVersion = NOTIFYICON_VERSION_4;
+		nid.uID = 0;
 		nid.uFlags = NIF_GUID;
-		nid.guidItem = guid;
 		Shell_NotifyIcon(NIM_DELETE, &nid);
 		PostQuitMessage(0);
 		return 0;
