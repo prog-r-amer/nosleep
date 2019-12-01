@@ -108,7 +108,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 	StringCchCopy(nid.szTip, ARRAYSIZE(nid.szTip), "Test application");
 	// Load the icon for high DPI.
 	LoadIconMetric(hInstance, (PCWSTR)MAKEINTRESOURCE(LIGHT_ICON), LIM_SMALL, &(nid.hIcon));
-	Shell_NotifyIcon(NIM_DELETE, &nid);
 	Shell_NotifyIcon(NIM_ADD, &nid);
 	Shell_NotifyIcon(NIM_SETVERSION, &nid);
 
